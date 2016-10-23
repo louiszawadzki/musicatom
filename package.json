@@ -1,0 +1,23 @@
+{
+  "name": "musicatom",
+  "version": "1.0.0",
+  "description": "Play music while you code",
+  "engines": {
+    "atom": "*"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/louiszawadzki/musicatom.git"
+  },
+  "keywords": [
+    "music",
+    "atom"
+  ],
+  "author": "Louiszawadzki & Srammy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/louiszawadzki/musicatom/issues"
+  },
+  "homepage": "https://github.com/louiszawadzki/musicatom#readme"
+}
