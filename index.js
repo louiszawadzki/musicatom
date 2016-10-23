@@ -1,6 +1,6 @@
 (function(window) {
 	//set audio context
-	audioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
+	audioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || AudioContext;
 	context = new audioContext();
 
   // Global volume
