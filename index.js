@@ -58,6 +58,7 @@
     }
   }
 
-  window.addEventListener("keydown", sendSound);
-  window.addEventListener("keyup", stopSound);
+	editorView = atom.views.getView(editor);
+  editorView.addEventListener("keydown", sendSound);
+  editorView.addEventListener("keyup", stopSound);
 })(this);
