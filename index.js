@@ -58,7 +58,8 @@
     }
   }
 
-	editorView = atom.views.getView(editor);
-  editorView.addEventListener("keydown", sendSound);
-  editorView.addEventListener("keyup", stopSound);
+	atom.workspaceView.eachEditorView (function (editorView) {
+		editorView.addEventListener("keydown", sendSound);
+		editorView.addEventListener("keyup", stopSound);
+	}
 })(this);
