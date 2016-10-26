@@ -1,6 +1,6 @@
 {
   "name": "musicatom",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Play music while you code",
   "engines": {
     "atom": "*"

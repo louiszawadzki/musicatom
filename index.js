@@ -58,8 +58,8 @@
     }
   }
 
-	atom.workspaceView.eachEditorView (function (editorView) {
+	atom.workspaceView.eachEditorView(function (editorView) {
 		editorView.addEventListener("keydown", sendSound);
 		editorView.addEventListener("keyup", stopSound);
-	}
+	});
 })(this);
