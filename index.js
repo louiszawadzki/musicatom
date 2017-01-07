@@ -34,32 +34,47 @@
     return {
       gain: gain,
       compressor: compressor,
-      osc: osc
+      osc: osc,
+			state: 'alive'
     };
   }
+
+	var removeOscillator = function(keyCode) {
+		if (nodes[keyCode].state === 'alive') {
+			nodes[keyCode].state = 'dying';
+			nodes[keyCode].osc.disconnect();
+			nodes[keyCode].compressor.disconnect();
+			nodes[keyCode].gain.disconnect();
+			nodes[keyCode] = {
+				state: 'dead'
+			};
+		}
+	}
 
   var sendSound = function (event) {
     var frequency = (event.keyCode - 65) * 300 / 26 + 100;
     if (event.keyCode !== 17 && event.keyCode !== 18) {
       nodes[event.keyCode] = createOscillator(frequency, context, globalVolumeNode, 0.5);
-    }
+    } else {
+			nodes[event.keyCode] = {
+				state: 'non-existing'
+			}
+		}
   }
 
   var stopSound = function (event) {
-    if (nodes[event.keyCode] !== undefined) {
+    if (nodes[event.keyCode].state === 'alive') {
       nodes[event.keyCode].gain.gain.linearRampToValueAtTime(0.0, context.currentTime + 0.5);
       nodes[event.keyCode].osc.stop(context.currentTime + 0.5);
       setTimeout(function () {
-        nodes[event.keyCode].osc.disconnect();
-        nodes[event.keyCode].compressor.disconnect();
-        nodes[event.keyCode].gain.disconnect();
-        nodes[event.keyCode] = {};
+				removeOscillator(event.keyCode);
       }, 500);
     }
   }
 
-	atom.workspaceView.eachEditorView(function (editorView) {
+	atom.workspace.observeTextEditors(function (editor) {
+		editorView = atom.views.getView(editor);
 		editorView.addEventListener("keydown", sendSound);
 		editorView.addEventListener("keyup", stopSound);
-	});
+	})
 })(this);
