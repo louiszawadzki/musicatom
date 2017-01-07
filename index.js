@@ -9,7 +9,6 @@
 
   var nodes = {};
 
-
   var createOscillator = function (frequency, acontext, dest, gainValue) {
     var osc = acontext.createOscillator();
     var gain = acontext.createGain();
@@ -39,37 +38,51 @@
     };
   }
 
-	var removeOscillator = function(keyCode) {
-		if (nodes[keyCode].state === 'alive') {
-			nodes[keyCode].state = 'dying';
-			nodes[keyCode].osc.disconnect();
-			nodes[keyCode].compressor.disconnect();
-			nodes[keyCode].gain.disconnect();
-			nodes[keyCode] = {
-				state: 'dead'
-			};
-		}
+	var getOldestAliveOscillator = function(oscillators) {
+		for (oscillator of oscillators) {
+			if (oscillator.state === 'alive') {
+				return oscillator;
+			}
+		};
+	}
+
+	var removeOscillator = function(node, oscillator) {
+		oscillator.osc.disconnect();
+		oscillator.compressor.disconnect();
+		oscillator.gain.disconnect();
+		oscillator = {};
+		node.oscillators.splice(0, 1);
 	}
 
   var sendSound = function (event) {
-    var frequency = (event.keyCode - 65) * 300 / 26 + 100;
-    if (event.keyCode !== 17 && event.keyCode !== 18) {
-      nodes[event.keyCode] = createOscillator(frequency, context, globalVolumeNode, 0.5);
-    } else {
+		var frequency = event.keyCode * 11 - 600;
+
+		if (nodes[event.keyCode] === undefined) {
 			nodes[event.keyCode] = {
-				state: 'non-existing'
-			}
+				status: 'up',
+				oscillators: []
+			};
 		}
+    if (event.keyCode !== 17 && event.keyCode !== 18 && nodes[event.keyCode].status === 'up') {
+      nodes[event.keyCode].oscillators.push(createOscillator(frequency, context, globalVolumeNode, 0.5));
+    }
+		nodes[event.keyCode].status = 'down';
   }
 
   var stopSound = function (event) {
-    if (nodes[event.keyCode].state === 'alive') {
-      nodes[event.keyCode].gain.gain.linearRampToValueAtTime(0.0, context.currentTime + 0.5);
-      nodes[event.keyCode].osc.stop(context.currentTime + 0.5);
-      setTimeout(function () {
-				removeOscillator(event.keyCode);
-      }, 500);
-    }
+		if (nodes[event.keyCode] === undefined) {
+			return;
+		}
+		var oscillator = getOldestAliveOscillator(nodes[event.keyCode].oscillators);
+		if (oscillator != undefined) {
+			nodes[event.keyCode].status = 'up';
+			oscillator.state = 'dead';
+			oscillator.gain.gain.linearRampToValueAtTime(0.0, context.currentTime + 0.5);
+			oscillator.osc.stop(context.currentTime + 0.5);
+			setTimeout(function () {
+				removeOscillator(nodes[event.keyCode], oscillator);
+			}, 500);
+		}
   }
 
 	atom.workspace.observeTextEditors(function (editor) {
