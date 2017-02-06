@@ -1,0 +1,45 @@
+body {
+  background-color: #FFF9DB;
+  font-family: 'Nunito Sans', sans-serif;
+  text-align: center;
+}
+
+.title {
+  margin-top: 100px;
+}
+
+.title__headline {
+  font-size: 80px;
+}
+
+.demo__headline {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.demo__input {
+  background-color: #FFF9DB;
+  border: none;
+  color: #BE4BDB;
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 24px;
+  text-align: center;
+}
+
+.demo__input:focus {
+  border-bottom: #BE4BDB solid 2px;
+  outline: none;
+}
+
+::-webkit-input-placeholder {
+  color: #DA77F2;
+  opacity: 0.7;
+}
+
+::-moz-placeholder {
+  color: #DA77F2;
+}
+
+:-ms-input-placeholder {
+  color: #DA77F2;
+}
