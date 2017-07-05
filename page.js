@@ -9,6 +9,51 @@
 
   var nodes = {};
 
+	var baseHarmonics = [0.82, 0.87, 0.9, 0.78];
+  var fuzzyFactor = 0.85	;
+
+	var createHarmonics = function (intensities, baseFrequency, acontext) {
+		var harmonicsGain = acontext.createGain();
+		harmonicsGain.gain.value = 1/intensities.length/2;
+
+		var harmonicsFilter = acontext.createBiquadFilter();
+		harmonicsFilter.frequency.value = 2000;
+		harmonicsFilter.Q.value = 0.5;
+
+		harmonicsGain.connect(harmonicsFilter);
+
+		// First harmonics
+		intensities.map(function (intensity, index) {
+			var osc = acontext.createOscillator();
+	    var gain = acontext.createGain();
+	    osc.frequency.value = baseFrequency * (index + 2) / (index + 1);
+			osc.start();
+			gain.gain.value = intensity * (1.5 - ((index + 2) / (index + 1)));
+			osc.connect(gain);
+			gain.connect(harmonicsGain);
+		});
+
+		// Second harmonics
+		intensities.map(function (intensity, index) {
+			var osc = acontext.createOscillator();
+	    var gain = acontext.createGain();
+	    osc.frequency.value = baseFrequency * 2 * (index + 2) / (index + 1);
+			osc.start();
+			gain.gain.value = intensity * (1.5 - ((index + 2) / (index + 1)));
+			osc.connect(gain);
+			gain.connect(harmonicsGain);
+		});
+
+		return harmonicsFilter;
+	}
+
+	var generateRandomHarmonics = function () {
+		return baseHarmonics.map(function(intensity) {
+			var fuzzyValue = fuzzyFactor * intensity + ((1 - fuzzyFactor) *(Math.random() - 0.5));
+			return Math.max(0, Math.min(1, fuzzyValue));
+		});
+	}
+
   var createOscillator = function (frequency, acontext, dest, gainValue) {
     var osc = acontext.createOscillator();
     var gain = acontext.createGain();
@@ -23,7 +68,11 @@
     compressor.attack.value = 0;
     compressor.release.value = 0.25;
 
-    osc.connect(compressor);
+		var harmonics = createHarmonics(generateRandomHarmonics(), frequency, acontext);
+
+    osc.connect(harmonics);
+		harmonics.connect(compressor);
+
     compressor.connect(gain);
     gain.connect(dest);
 
@@ -32,7 +81,8 @@
 
     return {
       gain: gain,
-      compressor: compressor,
+			compressor: compressor,
+      harmonics: harmonics,
       osc: osc,
 			state: 'alive'
     };
@@ -48,6 +98,7 @@
 
 	var removeOscillator = function(node, oscillator) {
 		oscillator.osc.disconnect();
+		oscillator.harmonics.disconnect();
 		oscillator.compressor.disconnect();
 		oscillator.gain.disconnect();
 		oscillator = {};
@@ -55,7 +106,7 @@
 	}
 
   var sendSound = function (event) {
-		var frequency = event.keyCode * 11 - 600;
+		var frequency = event.keyCode * 9 - 200;
 
 		if (nodes[event.keyCode] === undefined) {
 			nodes[event.keyCode] = {
